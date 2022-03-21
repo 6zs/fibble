@@ -280,13 +280,17 @@ function Game(props: GameProps) {
     });
 
   const cheatText = cheat ? ` ${target}` : "";
+  const canPrev = dayNum > 1;
+  const canNext = gameState !== GameState.Playing;
   const prevLink = "?day=" + (dayNum-1).toString();
   const nextLink = "?day=" + (dayNum+1).toString();
 
   return (
     <div className="Game" style={{ display: props.hidden ? "none" : "block" }}>
       <div className="Game-options">
-      <span><a href={prevLink}>prev</a> |</span><span>puzzle {dayNum}{`${cheatText}`}</span> <span>| <a href={nextLink}>next</a></span>
+      {canPrev && <span><a href={prevLink}>prev</a> |</span>}
+      <span>puzzle {dayNum}{`${cheatText}`}</span>
+      {canNext && <span>| <a href={nextLink}>next</a></span>}
       </div>
       <table
         className="Game-rows"
