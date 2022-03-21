@@ -40,12 +40,28 @@ body {
   font-weight: bold;
 }
 
+.Fib-flag-container
+{ 
+  display: flex;
+  flex-direction: column;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+}
+
+.Fib-flag
+{
+  align-self: flex-start;
+  font-size: 14px;
+}
+
 .Row-annotation {
   margin-inline-start: 16px;
   width: 5em;
   text-align: end;
   margin-left: -80px;
   padding-left: 80px;
+  pointer-events:none;
 }
 
 .App-container {

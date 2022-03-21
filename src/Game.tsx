@@ -22,6 +22,7 @@ export enum GameState {
 
 export const gameDayStoragePrefix = "fibble-game-day-";
 export const guessesDayStoragePrefix = "fibble-guesses-day-";
+export const flagsDayStoragePrefix = "fibble-flags-day-";
 
 export interface Fib
 {
@@ -109,6 +110,14 @@ function initialGuess(target: string): [string] {
   return [candidate];
 }
 
+function initialFlags(): number[] {
+  let flags = new Array<number>(maxGuesses);
+  for (let i = 0; i < maxGuesses; ++i) { 
+    flags[i] = -1;
+  }
+  return flags;
+}
+
 function gameOverText(state: GameState, target: string) : string {
   const verbed = state === GameState.Won ? "won" : "lost";
   return `you ${verbed}! the answer was ${target.toUpperCase()}. play again tomorrow`; 
@@ -134,6 +143,7 @@ function Game(props: GameProps) {
   const [guesses, setGuesses] = useLocalStorage<string[]>(guessesDayStoragePrefix+dayNum, initialGuess(target));
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [hint, setHint] = useState<string>(getHintFromState());
+  const [flags, setFlags] = useLocalStorage<number[]>(flagsDayStoragePrefix+dayNum, initialFlags());
    
   const tableRef = useRef<HTMLTableElement>(null);
   async function share(copiedHint: string, text?: string) {
@@ -170,6 +180,13 @@ function Game(props: GameProps) {
     return ``;
   }
 
+  const onClickFlag = (row: number, position: number) => {
+    let newFlags = [...flags];
+    newFlags[row] = newFlags[row] === position ? -1 : position;
+    window.console.log("clicked="+row+","+position);
+    setFlags(newFlags);
+  };
+  
   const onKey = (key: string) => {
     if (gameState !== GameState.Playing) {
       return;
@@ -244,16 +261,13 @@ function Game(props: GameProps) {
     return reduced;
   };
 
-
   let letterInfo = new Map<string, Clue>();
   const tableRows = Array(props.maxGuesses)
     .fill(undefined)
     .map((_, i) => {
       const guess = [...guesses, currentGuess][i] ?? "";
       const cluedLetters = (gameState === GameState.Won && i === guesses.length-1) ? clue(guess,target) : fibclue(guess, target, fibs[i]);
-      const isTarget = target === guess;
       const lockedIn = i < guesses.length;
-      const isAllGreen = lockedIn && cluedLetters.reduce( reduceCorrect, {clue: Clue.Correct, letter: ""} ).clue === Clue.Correct;                
       if (lockedIn) {
         for (const { clue, letter } of cluedLetters) {
           if (clue === undefined) break;
@@ -265,7 +279,11 @@ function Game(props: GameProps) {
       }
       return (
         <Row
-          key={i}         
+          key={i}
+          rowNum={i}
+          flagPos={
+            (gameState === GameState.Won &&i === guesses.length-1 ) ? -1 : 
+            (gameState === GameState.Playing || !lockedIn) ? flags[i] : fibs[i].position}
           rowState={
             lockedIn
               ? RowState.LockedIn
@@ -274,6 +292,7 @@ function Game(props: GameProps) {
               : RowState.Pending
           }
           cluedLetters={cluedLetters}
+          clickHandler={onClickFlag}
           annotation={`\u00a0`}          
         />
       );

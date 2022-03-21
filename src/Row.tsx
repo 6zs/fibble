@@ -8,8 +8,11 @@ export enum RowState {
 
 interface RowProps {
   rowState: RowState;
+  rowNum: number;
+  flagPos: number;
   cluedLetters: CluedLetter[];
   annotation?: string;
+  clickHandler: (row: number, position: number) => void;
 }
 
 export function Row(props: RowProps) {
@@ -20,11 +23,15 @@ export function Row(props: RowProps) {
     .slice(0, 5)
     .map(({ clue, letter }, i) => {
       let letterClass = "Row-letter";
+      let isFlagged = props.flagPos == i;
       if (isLockedIn && clue !== undefined) {
         letterClass += " " + clueClass(clue);
       }
+      const position = i;
       return (
         <td
+          onClick={(event:any) => {if(isLockedIn){props.clickHandler(props.rowNum, position);}}}
+          onTouchStart={(event:any) => {if(isLockedIn){props.clickHandler(props.rowNum, position);}}}
           key={i}
           className={letterClass}
           aria-live={isEditing ? "assertive" : "off"}
@@ -35,7 +42,8 @@ export function Row(props: RowProps) {
               : ""
           }
         >
-          {letter}
+          <div className="Clue-letter">{letter}</div>
+          {isFlagged && <div className="Fib-flag-container"><div className="Fib-flag">🏴 </div></div>}
         </td>
       );
     });
@@ -44,6 +52,11 @@ export function Row(props: RowProps) {
   return (
     <tr className={rowClass}>
       {letterDivs}
+      <div className="Fib-flag">
+      {isLockedIn && props.flagPos === -1 && <span>🏴 </span>}
+      {isLockedIn && props.flagPos !== -1 && <span>🏳️</span>}
+      {!isLockedIn && <span>🏳️</span>}
+      </div>
       {props.annotation && (
         <span className="Row-annotation">{props.annotation}</span>
       )}
