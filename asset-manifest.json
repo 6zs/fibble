@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/fibble/static/css/main.51bdc0fe.css",
-    "main.js": "/fibble/static/js/main.8c2a083b.js",
+    "main.css": "/fibble/static/css/main.8b95c366.css",
+    "main.js": "/fibble/static/js/main.d9bf33d5.js",
     "index.html": "/fibble/index.html",
-    "main.51bdc0fe.css.map": "/fibble/static/css/main.51bdc0fe.css.map",
-    "main.8c2a083b.js.map": "/fibble/static/js/main.8c2a083b.js.map"
+    "main.8b95c366.css.map": "/fibble/static/css/main.8b95c366.css.map",
+    "main.d9bf33d5.js.map": "/fibble/static/js/main.d9bf33d5.js.map"
   },
   "entrypoints": [
-    "static/css/main.51bdc0fe.css",
-    "static/js/main.8c2a083b.js"
+    "static/css/main.8b95c366.css",
+    "static/js/main.d9bf33d5.js"
   ]
 }
