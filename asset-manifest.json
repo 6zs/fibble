@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/fibble/static/css/main.51bdc0fe.css",
-    "main.js": "/fibble/static/js/main.9a9a968c.js",
+    "main.js": "/fibble/static/js/main.d22866b6.js",
     "index.html": "/fibble/index.html",
     "main.51bdc0fe.css.map": "/fibble/static/css/main.51bdc0fe.css.map",
-    "main.9a9a968c.js.map": "/fibble/static/js/main.9a9a968c.js.map"
+    "main.d22866b6.js.map": "/fibble/static/js/main.d22866b6.js.map"
   },
   "entrypoints": [
     "static/css/main.51bdc0fe.css",
-    "static/js/main.9a9a968c.js"
+    "static/js/main.d22866b6.js"
   ]
 }
