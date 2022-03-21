@@ -1,6 +1,6 @@
 import dictionary from "./dictionary.json";
 
-export const gameName = "xordle";
+export const gameName = "fibble";
 export const maxGuesses = 9;
 
 const now = new Date();

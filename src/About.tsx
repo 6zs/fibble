@@ -28,7 +28,7 @@ export function About() {
       <hr />
       <p>
         report issues{" "}
-        <a href="https://github.com/6zs/xordle/issues">here</a>
+        <a href="https://github.com/6zs/fibble/issues">here</a>
       </p>
       <p>
       </p>

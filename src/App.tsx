@@ -16,8 +16,8 @@ function deserializeStorage(serialized: string) {
   }
 }
 
-const redirectFrom = "6zs.github.io";
-const redirectTo = "https://xordle.xyz/";
+const redirectFrom = "example.com";
+const redirectTo = "https://fibble.xyz/";
 const save = new URLSearchParams(window.location.search).get("save") ?? "";
 
 function useSetting<T>(
@@ -96,7 +96,7 @@ function App() {
             fontStyle: "inherit",
           }}
         >
-         xordle
+         fibble
         </span>
       </h1>
       <div className="top-right">
