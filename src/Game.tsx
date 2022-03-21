@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Row, RowState } from "./Row";
 import dictionary from "./dictionary.json";
-import { Clue, clue, CluedLetter, describeClue, xorclue } from "./clue";
+import { Clue, clue, CluedLetter, describeClue, fibclue } from "./clue";
 import { Keyboard } from "./Keyboard";
 import targetList from "./targets.json";
 import {
@@ -20,8 +20,15 @@ export enum GameState {
   Lost,
 }
 
-export const gameDayStoragePrefix = "game-day-";
-export const guessesDayStoragePrefix = "guesses-day-";
+export const gameDayStoragePrefix = "fibble-game-day-";
+export const guessesDayStoragePrefix = "fibble-guesses-day-";
+
+export interface Fib
+{
+  position: number;
+  offset: number;
+}
+
 
 function useLocalStorage<T>(
   key: string,
@@ -54,26 +61,9 @@ interface GameProps {
 
 const eligible = targetList.slice(0, targetList.indexOf("murky") + 1).filter((word) => word.length === 5); // Words no rarer than this one
 
-function isValidCluePair(word1: string, word2: string) {
-  if (/\*/.test(word1)) {
+function isValidClue(word: string) {
+  if (/\*/.test(word)) {
     return false;
-  }
-  if (/\*/.test(word2)) {
-    return false;
-  }
-  if (word1.length !== word2.length) {
-    return false;
-  }
-  if (word1 === word2) {
-    return false;
-  }
-  for (let i = 0; i < word1.length; ++i) {
-    if(word1[i] === word2[i]) {
-      return false;
-    }
-    if (word2.lastIndexOf(word1[i]) !== -1) {
-      return false;
-    }
   }
   return true;
 }
@@ -90,59 +80,58 @@ function countMatching(cluedLetters: CluedLetter[]) : Map<Clue, number> {
   return counts;
 }
 
-function isGoodInitialGuess(targets: string[], candidate: string) {
+function isGoodInitialGuess(target: string, candidate: string) {
   if (/\*/.test(candidate)) {
     return false;
   }
-  let hints1 = clue(candidate, targets[0]);
-  let hints2 = clue(candidate, targets[1]);
-  let green1 = countMatching(hints1).get(Clue.Correct) ?? 0;
-  let yellow1 = countMatching(hints1).get(Clue.Elsewhere) ?? 0;
-  let green2 = countMatching(hints2).get(Clue.Correct) ?? 0;
-  let yellow2 = countMatching(hints2).get(Clue.Elsewhere) ?? 0;  
-  return green1+yellow1 < 5 && green2+yellow2 < 5;
+  if (candidate.length !== target.length) {
+    return false;
+  }
+  let hints = clue(candidate, target);
+  let green = countMatching(hints).get(Clue.Correct) ?? 0;
+  let yellow = countMatching(hints).get(Clue.Elsewhere) ?? 0;
+  return green + yellow < 5;
 }
 
-function randomTargets(): string[] {
-  let candidate1: string;
-  let candidate2: string;
-  do {
-    candidate1 = pick(eligible);
-    candidate2 = pick(eligible);
-  } while (!isValidCluePair(candidate1,candidate2));
-  return [candidate1, candidate2];
-}
-
-function initialGuess(targets: string[]): [string] {
+function randomTarget(): string {
   let candidate: string;
   do {
     candidate = pick(eligible);
-  } while(!isGoodInitialGuess(targets, candidate));
-  return [candidate];
-}
-
-function randomClue(targets: string[]) {
-  let candidate: string;
-  do {
-    candidate = pick(eligible);
-  } while (targets.includes(candidate));
+  } while (!isValidClue(candidate));
   return candidate;
 }
 
-function gameOverText(state: GameState, targets: string[]) : string {
+function initialGuess(target: string): [string] {
+  let candidate: string;
+  do {
+    candidate = pick(eligible);
+  } while(!isGoodInitialGuess(target, candidate));
+  return [candidate];
+}
+
+function gameOverText(state: GameState, target: string) : string {
   const verbed = state === GameState.Won ? "won" : "lost";
-  return `you ${verbed}! the answers were ${targets[0].toUpperCase()}, ${targets[1].toUpperCase()}. play again tomorrow`; 
+  return `you ${verbed}! the answer was ${target.toUpperCase()}. play again tomorrow`; 
 }
 
 function Game(props: GameProps) {
 
-  const [targets, setTargets] = useState(() => {
+  const [target, setTarget] = useState(() => {
     resetRng();
-    return randomTargets();
+    return randomTarget();
+  });
+
+  const [fibs, setFibs] = useState(() => {
+    let fibs = new Array<Fib>(maxGuesses);
+    const positions = [0,1,2,3,4];
+    for (let i = 0; i < maxGuesses; ++i) {
+       fibs[i]= { position: pick(positions), offset: pick([1,2]) };
+    }
+    return fibs;
   });
 
   const [gameState, setGameState] = useLocalStorage<GameState>(gameDayStoragePrefix+dayNum, GameState.Playing);
-  const [guesses, setGuesses] = useLocalStorage<string[]>(guessesDayStoragePrefix+dayNum, dayNum > 14 ? initialGuess(targets) : []);
+  const [guesses, setGuesses] = useLocalStorage<string[]>(guessesDayStoragePrefix+dayNum, initialGuess(target));
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [hint, setHint] = useState<string>(getHintFromState());
    
@@ -173,13 +162,7 @@ function Game(props: GameProps) {
 
   function getHintFromState() {    
     if  (gameState === GameState.Won || gameState === GameState.Lost) {
-      return gameOverText(gameState, targets);
-    }
-    if (guesses.includes(targets[0])) {
-      return `you got ${targets[0].toUpperCase()}, one more to go`;
-    }     
-    if (guesses.includes(targets[1])) {
-      return `you got ${targets[1].toUpperCase()}, one more to go`;
+      return gameOverText(gameState, target);
     }
     if ( guesses.length === 0 && currentGuess === undefined ) {
       return `start guessin'`;
@@ -192,10 +175,7 @@ function Game(props: GameProps) {
       return;
     }
 
-    const bonusGuess = guesses.length === maxGuesses && targets.includes(guesses[guesses.length-1]);
-    const realMaxGuesses = props.maxGuesses+(bonusGuess?1:0);
-  
-    if (guesses.length === realMaxGuesses) {
+    if (guesses.length === props.maxGuesses) {
       return;
     }
     if (/^[a-z]$/i.test(key)) {
@@ -213,10 +193,6 @@ function Game(props: GameProps) {
         setHint("type more letters");
         return;
       }
-      if(guesses.includes(currentGuess)) {
-        setHint("you've already guessed that");
-        return;
-      }
       if (!dictionary.includes(currentGuess)) {
         setHint(`that's not in the word list`);
         return;
@@ -224,22 +200,18 @@ function Game(props: GameProps) {
      
       setGuesses((guesses) => guesses.concat([currentGuess]));
       setCurrentGuess("");
-      speak(describeClue(xorclue(clue(currentGuess, targets[0]), clue(currentGuess, targets[1]))))
+      speak(describeClue(fibclue(currentGuess, target, fibs[guesses.length])))
       doWinOrLose();
     }
   };
 
   const doWinOrLose = () => {
-    if ( targets.length !== 2 ) {
+    if (target === "") {
       return;
     }
-    if ( (guesses.includes(targets[0]) && guesses.includes(targets[1])) ) {
+    if (guesses.includes(target)) {
       setGameState(GameState.Won);
     } else if (guesses.length >= props.maxGuesses) {
-      if (targets.includes(guesses[guesses.length-1])) {
-        setHint("last chance! do a bonus guess")
-        return;
-      }        
       setGameState(GameState.Lost);
     } 
     setHint(getHintFromState());    
@@ -262,7 +234,7 @@ function Game(props: GameProps) {
 
   useEffect(() => {
     doWinOrLose();
-  }, [currentGuess, gameState, guesses, targets]);
+  }, [currentGuess, gameState, guesses, target]);
 
   let reduceCorrect = (prev: CluedLetter, iter: CluedLetter, currentIndex: number, array: CluedLetter[]) => {
     let reduced: CluedLetter = prev;
@@ -272,29 +244,15 @@ function Game(props: GameProps) {
     return reduced;
   };
 
-  const showBonusGuessRow =  
-    (gameState === GameState.Playing && guesses.length === maxGuesses && targets.includes(guesses[guesses.length-1])) ||
-    (gameState !== GameState.Playing && guesses.length === (maxGuesses+1));
 
-  const realMaxGuesses = Math.max(guesses.length,(showBonusGuessRow ? props.maxGuesses+1 : props.maxGuesses ));
   let letterInfo = new Map<string, Clue>();
-  const correctGuess = 
-    gameState === GameState.Won 
-    ? "" 
-    : guesses.includes(targets[0]) 
-    ? targets[0]
-    : guesses.includes(targets[1])
-    ? targets[1]
-    : "";
-
-  const tableRows = Array(realMaxGuesses)
+  const tableRows = Array(props.maxGuesses)
     .fill(undefined)
     .map((_, i) => {
       const guess = [...guesses, currentGuess][i] ?? "";
-      const cluedLetters = xorclue(clue(guess, targets[0]),clue(guess, targets[1]));
-      const isTarget = targets.includes(guess);
-      const isBonusGuess = i === maxGuesses;
-      const lockedIn = (!isBonusGuess && i < guesses.length) || (isBonusGuess && guesses.length === realMaxGuesses);
+      const cluedLetters = (gameState === GameState.Won && i === guesses.length-1) ? clue(guess,target) : fibclue(guess, target, fibs[i]);
+      const isTarget = target === guess;
+      const lockedIn = i < guesses.length;
       const isAllGreen = lockedIn && cluedLetters.reduce( reduceCorrect, {clue: Clue.Correct, letter: ""} ).clue === Clue.Correct;                
       if (lockedIn) {
         for (const { clue, letter } of cluedLetters) {
@@ -311,23 +269,24 @@ function Game(props: GameProps) {
           rowState={
             lockedIn
               ? RowState.LockedIn
-              : (i === guesses.length || isBonusGuess)
+              : (i === guesses.length)
               ? RowState.Editing
               : RowState.Pending
           }
           cluedLetters={cluedLetters}
-          correctGuess={correctGuess}
-          annotation={isBonusGuess ? "bonus!" : ((isAllGreen && !isTarget) ? "huh?" : `\u00a0`)}          
+          annotation={`\u00a0`}          
         />
       );
     });
 
-  const cheatText = cheat ? ` ${targets}` : "";
+  const cheatText = cheat ? ` ${target}` : "";
+  const prevLink = "?day=" + (dayNum-1).toString();
+  const nextLink = "?day=" + (dayNum+1).toString();
 
   return (
     <div className="Game" style={{ display: props.hidden ? "none" : "block" }}>
       <div className="Game-options">
-        day {dayNum}{`${cheatText}`}
+      <span><a href={prevLink}>prev</a> |</span><span>puzzle {dayNum}{`${cheatText}`}</span> <span>| <a href={nextLink}>next</a></span>
       </div>
       <table
         className="Game-rows"
@@ -357,8 +316,8 @@ function Game(props: GameProps) {
                 "result copied to clipboard!",
                 `${gameName} #${dayNum} ${score}/${props.maxGuesses}\n` +
                   guesses
-                    .map((guess) =>
-                      xorclue(clue(guess, targets[0]),clue(guess, targets[1]))
+                    .map((guess, i) =>
+                      (gameState === GameState.Won && i === (guesses.length-1) ? clue(guess,target) : fibclue(guess, target, fibs[i]) )
                         .map((c) => emoji[c.clue ?? 0])
                         .join("")
                     )
@@ -374,7 +333,6 @@ function Game(props: GameProps) {
       <Keyboard
         layout={props.keyboardLayout}
         letterInfo={letterInfo}
-        correctGuess={correctGuess}
         onKey={onKey}
       />
     </div>

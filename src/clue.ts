@@ -1,3 +1,6 @@
+import { pick } from "./util";
+import { Fib } from "./Game"
+
 export enum Clue {
   Absent,
   Elsewhere,
@@ -30,28 +33,33 @@ export function clue(word: string, target: string): CluedLetter[] {
   });
 }
 
-export function xorclue(clue1: CluedLetter[], clue2: CluedLetter[]): CluedLetter[] {
-  return clue1.map((cluedLetter,i) => {
-    if (cluedLetter !== clue2[i]) {
-      if ( cluedLetter.clue === Clue.Correct || clue2[i].clue === Clue.Correct ) {
-        return { clue: Clue.Correct, letter: cluedLetter.letter };
-      }
-      if ( cluedLetter.clue === Clue.Elsewhere || clue2[i].clue === Clue.Elsewhere ) {
-        return { clue: Clue.Elsewhere, letter: cluedLetter.letter };
-      }
-    }
-    return { clue: Clue.Absent, letter: cluedLetter.letter };
-  });
+export function tellfib(trueClue: CluedLetter, offset: number): CluedLetter {
+  if (trueClue.clue === undefined) {
+    return trueClue;
+  }
+  const answers = [Clue.Correct, Clue.Elsewhere, Clue.Absent];
+  const index = answers.lastIndexOf(trueClue.clue);
+  if (index >= 0) {
+    trueClue.clue = answers[(index+offset)%answers.length];
+  }
+  return trueClue;
 }
 
-export function clueClass(clue: Clue, correctGuess: boolean): string {
-  const suffix = (correctGuess ? "-fin" : "");
+export function fibclue(word: string, target: string, fib: Fib): CluedLetter[] {
+  let trueClues: CluedLetter[] = clue(word, target);
+  if (trueClues[fib.position] !== undefined) {
+    trueClues[fib.position] = tellfib(trueClues[fib.position], fib.offset);
+  }
+  return trueClues;
+}
+
+export function clueClass(clue: Clue): string {
   if (clue === Clue.Absent) {
     return "letter-absent";
   } else if (clue === Clue.Elsewhere) {
-    return "letter-elsewhere" + suffix;
+    return "letter-elsewhere";
   } else {
-    return "letter-correct" + suffix;
+    return "letter-correct";
   }
 }
 
