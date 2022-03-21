@@ -269,8 +269,10 @@ function Game(props: GameProps) {
       const cluedLetters = (gameState === GameState.Won && i === guesses.length-1) ? clue(guess,target) : fibclue(guess, target, fibs[i]);
       const lockedIn = i < guesses.length;
       if (lockedIn) {
-        for (const { clue, letter } of cluedLetters) {
+        for (let j = 0; j < cluedLetters.length; ++j) {
+          const { clue, letter } = cluedLetters[j];
           if (clue === undefined) break;
+          if (flags[i] == j) continue;
           const old = letterInfo.get(letter);
           if (old === undefined || clue > old) {
             letterInfo.set(letter, clue);

@@ -31,7 +31,6 @@ export function Row(props: RowProps) {
       return (
         <td
           onClick={(event:any) => {if(isLockedIn){props.clickHandler(props.rowNum, position);}}}
-          onTouchStart={(event:any) => {if(isLockedIn){props.clickHandler(props.rowNum, position);}}}
           key={i}
           className={letterClass}
           aria-live={isEditing ? "assertive" : "off"}
