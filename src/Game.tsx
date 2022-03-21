@@ -281,7 +281,7 @@ function Game(props: GameProps) {
 
   const cheatText = cheat ? ` ${target}` : "";
   const canPrev = dayNum > 1;
-  const canNext = gameState !== GameState.Playing;
+  const canNext = true;///gameState !== GameState.Playing;
   const prevLink = "?day=" + (dayNum-1).toString();
   const nextLink = "?day=" + (dayNum+1).toString();
 

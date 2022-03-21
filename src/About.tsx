@@ -13,17 +13,14 @@ export function About() {
           <br />code based on a fork of <a href="https://github.com/lynn/hello-wordl">hello wordl</a>
         </p>
       <p className="App-instructions">
-        there are two secret words
-        <br />they share no letters in common
-        <br />you get {maxGuesses} tries to guess both words
-        <br />
-        <br />you start with a random clue
-        <br />it's the same for everyone
-        <br />
-        <br />letters in your guess are:
+        letters in your guess are:
         <br />🟩 green if green in either word (right letter, right spot)
         <br />🟨 yellow if yellow in either word (right letter, wrong spot) 
         <br />⬛ grey if it does not appear in either word 
+        <br />
+        <br />but there's one fib in every row
+        <br />the fibs are in the same positions for everyone
+        <br />good luck!
       </p>
       <hr />
       <p>
