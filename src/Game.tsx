@@ -305,6 +305,17 @@ function Game(props: GameProps) {
   const canNext = true;///gameState !== GameState.Playing;
   const prevLink = "?day=" + (dayNum-1).toString();
   const nextLink = "?day=" + (dayNum+1).toString();
+  let correctFlags = 0;
+  let totalFlags = 0;
+  for (let i = 0; i < maxGuesses; ++i) {
+    if (fibs[i].position === flags[i]) {
+      correctFlags++;
+    }
+    if (flags[i] !== -1) {
+      totalFlags++;
+    }
+  }
+  const flagShare = gameState == GameState.Lost ? (" " + correctFlags.toString() + "/" + totalFlags.toString() + "🏴") : "";
 
   return (
     <div className="Game" style={{ display: props.hidden ? "none" : "block" }}>
@@ -339,7 +350,7 @@ function Game(props: GameProps) {
               const score = gameState === GameState.Lost ? "X" : guesses.length;
               share(
                 "result copied to clipboard!",
-                `${gameName} #${dayNum} ${score}/${props.maxGuesses}\n` +
+                `${gameName} #${dayNum} ${score}/${props.maxGuesses}${flagShare}\n` +
                   guesses
                     .map((guess, i) =>
                       (gameState === GameState.Won && i === (guesses.length-1) ? clue(guess,target) : fibclue(guess, target, fibs[i]) )
