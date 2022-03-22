@@ -4,6 +4,7 @@ import Game from "./Game";
 import { useEffect, useState } from "react";
 import { About } from "./About";
 import { Stats } from "./Stats";
+import { dayNum, todayDayNum } from "./util"
 
 function serializeStorage() : string {
   return window.btoa(window.JSON.stringify(window.localStorage));
@@ -16,7 +17,7 @@ function deserializeStorage(serialized: string) {
   }
 }
 
-const redirectFrom = "example.com";
+const redirectFrom = "6zs.github.io";
 const redirectTo = "https://fibble.xyz/";
 const save = new URLSearchParams(window.location.search).get("save") ?? "";
 
@@ -57,13 +58,20 @@ function App() {
   const [enterLeft, setEnterLeft] = useSetting<boolean>("enter-left", false);
 
   useEffect(() => { 
+    if (Number(dayNum) > Number(todayDayNum)) {
+      window.location.replace(redirectTo);
+      return;
+    }
+  });
+
+  useEffect(() => { 
     if (save !== "") {
       deserializeStorage(save);
       window.location.replace(window.location.origin);
       return;
     }
     if (window.location.host.lastIndexOf(redirectFrom) === 0) {
-      window.location.replace(redirectTo + "?save=" + serializeStorage());
+      window.location.replace(redirectTo);
       return;
     }
   });

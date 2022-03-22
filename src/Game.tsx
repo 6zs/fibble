@@ -10,6 +10,7 @@ import {
   resetRng,
   speak,
   dayNum,
+  todayDayNum,
   cheat,
   maxGuesses
 } from "./util";
@@ -20,16 +21,15 @@ export enum GameState {
   Lost,
 }
 
-export const gameDayStoragePrefix = "fibble-game-day-";
-export const guessesDayStoragePrefix = "fibble-guesses-day-";
-export const flagsDayStoragePrefix = "fibble-flags-day-";
+export const gameDayStoragePrefix = "fibble.xyz-game-day-";
+export const guessesDayStoragePrefix = "fibble.xyz-guesses-day-";
+export const flagsDayStoragePrefix = "fibble.xyz-flags-day-";
 
 export interface Fib
 {
   position: number;
   offset: number;
 }
-
 
 function useLocalStorage<T>(
   key: string,
@@ -120,7 +120,7 @@ function initialFlags(): number[] {
 
 function gameOverText(state: GameState, target: string) : string {
   const verbed = state === GameState.Won ? "won" : "lost";
-  return `you ${verbed}! the answer was ${target.toUpperCase()}. try the next one`; 
+  return `you ${verbed}! the answer was ${target.toUpperCase()}. try again tomorrow`; 
 }
 
 function Game(props: GameProps) {
@@ -306,7 +306,7 @@ function Game(props: GameProps) {
 
   const cheatText = cheat ? ` ${target}` : "";
   const canPrev = dayNum > 1;
-  const canNext = true;///gameState !== GameState.Playing;
+  const canNext = dayNum < todayDayNum;
   const prevLink = "?day=" + (dayNum-1).toString();
   const nextLink = "?day=" + (dayNum+1).toString();
   let correctFlags = 0;
@@ -326,7 +326,7 @@ function Game(props: GameProps) {
     <div className="Game" style={{ display: props.hidden ? "none" : "block" }}>
       <div className="Game-options">
       {canPrev && <span><a href={prevLink}>prev</a> |</span>}
-      <span>puzzle {dayNum}{`${cheatText}`}</span>
+      <span>day {dayNum}{`${cheatText}`}</span>
       {canNext && <span>| <a href={nextLink}>next</a></span>}
       </div>
       <table
