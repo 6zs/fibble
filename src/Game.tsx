@@ -210,6 +210,10 @@ function Game(props: GameProps) {
         setHint("type more letters");
         return;
       }
+      if(guesses.includes(currentGuess)) {
+        setHint("you've already guessed that");
+        return;
+      }      
       if (!dictionary.includes(currentGuess)) {
         setHint(`that's not in the word list`);
         return;
