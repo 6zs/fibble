@@ -14,8 +14,8 @@ export function About() {
         </p>
       <p className="App-instructions">
         letters in your guess are:
-        <br />🟩 green if green in either word (right letter, right spot)
-        <br />🟨 yellow if yellow in either word (right letter, wrong spot) 
+        <br />🟩 green if it's the right letter in the right spot
+        <br />🟨 yellow if it's the right letter in the wrong spot
         <br />⬛ grey if it does not appear in either word 
         <br />
         <br />but there's one fib in every row

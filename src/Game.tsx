@@ -120,7 +120,7 @@ function initialFlags(): number[] {
 
 function gameOverText(state: GameState, target: string) : string {
   const verbed = state === GameState.Won ? "won" : "lost";
-  return `you ${verbed}! the answer was ${target.toUpperCase()}. play again tomorrow`; 
+  return `you ${verbed}! the answer was ${target.toUpperCase()}. try the next one`; 
 }
 
 function Game(props: GameProps) {
