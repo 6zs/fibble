@@ -53,7 +53,7 @@ export function Row(props: RowProps) {
       {letterDivs}
       <div className="Fib-flag">
       {isLockedIn && props.flagPos === -1 && <span>🏴 </span>}
-      {isLockedIn && props.flagPos !== -1 && <span>🏳️</span>}
+      {isLockedIn && props.flagPos !== -1 && <span onClick={(event:any) => {if(isLockedIn){props.clickHandler(props.rowNum, -1);}}}> 🏳️</span>}
       {!isLockedIn && <span>🏳️</span>}
       </div>
       {props.annotation && (

@@ -319,6 +319,7 @@ function Game(props: GameProps) {
       totalFlags++;
     }
   }
+  
   const flagShare = gameState == GameState.Lost ? (" " + correctFlags.toString() + "/" + totalFlags.toString() + "🏴") : "";
 
   return (

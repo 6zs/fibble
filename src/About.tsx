@@ -21,6 +21,7 @@ export function About() {
         <br />but there's one fib in every row
         <br />the fibs are in the same positions for everyone
         <br />good luck!
+        <br />p.s. you can use 🏴 to track which letters you believe are lies
       </p>
       <hr />
       <p>
