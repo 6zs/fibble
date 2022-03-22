@@ -307,8 +307,8 @@ function Game(props: GameProps) {
   const cheatText = cheat ? ` ${target}` : "";
   const canPrev = dayNum > 1;
   const canNext = dayNum < todayDayNum;
-  const prevLink = "?day=" + (dayNum-1).toString();
-  const nextLink = "?day=" + (dayNum+1).toString();
+  const prevLink = "?d=" + (dayNum-1).toString();
+  const nextLink = "?d=" + (dayNum+1).toString();
   let correctFlags = 0;
   let totalFlags = 0;
   for (let i = 0; i < maxGuesses; ++i) {

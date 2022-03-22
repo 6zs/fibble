@@ -10,10 +10,10 @@ const todayNumber = Number(
   now.toLocaleDateString("en-US", { day: "2-digit" }));
 const rando = 873642867;
 const day1Number = Number(20220319);
-const debugDay = new URLSearchParams(window.location.search).get("day") ?? undefined;
+const debugDay = new URLSearchParams(window.location.search).get("d") ?? undefined;
 export const cheat = new URLSearchParams(window.location.search).get("cheat") ?? undefined;
-export const dayNum = debugDay ? parseInt(debugDay) : 1 + todayNumber - day1Number;
-export const todayDayNum = 1 + todayNumber - day1Number;
+export const dayNum : number = debugDay ? parseInt(debugDay) : 1 + todayNumber - day1Number;
+export const todayDayNum : number = 1 + todayNumber - day1Number;
 export const dictionarySet: Set<string> = new Set(dictionary);
 
 function mulberry32(a: number) {
