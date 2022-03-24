@@ -7,13 +7,15 @@ import targetList from "./targets.json";
 import {
   gameName,
   pick,
-  resetRng,
   speak,
   dayNum,
   todayDayNum,
   cheat,
-  maxGuesses
+  maxGuesses,
+  makeRandom
 } from "./util";
+
+import { Day } from "./Stats"
 
 export enum GameState {
   Playing,
@@ -94,18 +96,18 @@ function isGoodInitialGuess(target: string, candidate: string) {
   return green + yellow < 5;
 }
 
-function randomTarget(): string {
+function randomTarget(random: ()=>number): string {
   let candidate: string;
   do {
-    candidate = pick(eligible);
+    candidate = pick(eligible, random);
   } while (!isValidClue(candidate));
   return candidate;
 }
 
-function initialGuess(target: string): [string] {
+function initialGuess(target: string, random: ()=>number): [string] {
   let candidate: string;
   do {
-    candidate = pick(eligible);
+    candidate = pick(eligible, random);
   } while(!isGoodInitialGuess(target, candidate));
   return [candidate];
 }
@@ -123,24 +125,49 @@ function gameOverText(state: GameState, target: string) : string {
   return `you ${verbed}! the answer was ${target.toUpperCase()}. try again tomorrow`; 
 }
 
+export function makePuzzle(dayNum: number) : Puzzle {
+  let random = makeRandom(dayNum);
+  let target = randomTarget(random);
+  let fibs = new Array<Fib>(maxGuesses);
+  const positions = [0,1,2,3,4];
+  for (let i = 0; i < maxGuesses; ++i) {
+	  fibs[i]= { position: pick(positions, random), offset: pick([1,2], random) };
+  }
+ 
+  let puzzle: Puzzle = {
+    target: target,
+    initialGuesses: initialGuess(target, random),
+    fibs: fibs
+  };
+  return puzzle;
+}
+
+export function emojiBlock(day: Day, colorBlind: boolean) : string {
+  const emoji = colorBlind
+    ? ["⬛", "🟦", "🟧"]
+    : ["⬛", "🟨", "🟩"];
+  return day.guesses.map((guess, i) =>
+    (day.gameState === GameState.Won && i === (day.guesses.length-1) ? clue(guess,day.puzzle.target) : fibclue(guess, day.puzzle.target, day.puzzle.fibs[i]) )  
+          .map((c) => emoji[c.clue ?? 0])
+          .join("")
+      )
+      .join("\n");
+}
+
+export interface Puzzle {
+  target: string,
+  initialGuesses: string[],
+  fibs: Array<Fib>
+}
+
 function Game(props: GameProps) {
 
-  const [target, setTarget] = useState(() => {
-    resetRng();
-    return randomTarget();
-  });
-
-  const [fibs, setFibs] = useState(() => {
-    let fibs = new Array<Fib>(maxGuesses);
-    const positions = [0,1,2,3,4];
-    for (let i = 0; i < maxGuesses; ++i) {
-       fibs[i]= { position: pick(positions), offset: pick([1,2]) };
-    }
-    return fibs;
+  const [puzzle, setPuzzle] = useState(() => {
+    return makePuzzle(dayNum);
   });
 
   const [gameState, setGameState] = useLocalStorage<GameState>(gameDayStoragePrefix+dayNum, GameState.Playing);
-  const [guesses, setGuesses] = useLocalStorage<string[]>(guessesDayStoragePrefix+dayNum, initialGuess(target));
+  const [guesses, setGuesses] = useLocalStorage<string[]>(guessesDayStoragePrefix+dayNum, puzzle.initialGuesses);
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [hint, setHint] = useState<string>(getHintFromState());
   const [flags, setFlags] = useLocalStorage<number[]>(flagsDayStoragePrefix+dayNum, initialFlags());
@@ -172,7 +199,7 @@ function Game(props: GameProps) {
 
   function getHintFromState() {    
     if  (gameState === GameState.Won || gameState === GameState.Lost) {
-      return gameOverText(gameState, target);
+      return gameOverText(gameState, puzzle.target);
     }
     if ( guesses.length === 0 && currentGuess === undefined ) {
       return `start guessin'`;
@@ -183,7 +210,6 @@ function Game(props: GameProps) {
   const onClickFlag = (row: number, position: number) => {
     let newFlags = [...flags];
     newFlags[row] = newFlags[row] === position ? -1 : position;
-    window.console.log("clicked="+row+","+position);
     setFlags(newFlags);
   };
   
@@ -221,16 +247,16 @@ function Game(props: GameProps) {
      
       setGuesses((guesses) => guesses.concat([currentGuess]));
       setCurrentGuess("");
-      speak(describeClue(fibclue(currentGuess, target, fibs[guesses.length])))
+      speak(describeClue(fibclue(currentGuess, puzzle.target, puzzle.fibs[guesses.length])))
       doWinOrLose();
     }
   };
 
   const doWinOrLose = () => {
-    if (target === "") {
+    if (puzzle.target === "") {
       return;
     }
-    if (guesses.includes(target)) {
+    if (guesses.includes(puzzle.target)) {
       setGameState(GameState.Won);
     } else if (guesses.length >= props.maxGuesses) {
       setGameState(GameState.Lost);
@@ -255,7 +281,7 @@ function Game(props: GameProps) {
 
   useEffect(() => {
     doWinOrLose();
-  }, [currentGuess, gameState, guesses, target]);
+  }, [currentGuess, gameState, guesses, puzzle.target]);
 
   let reduceCorrect = (prev: CluedLetter, iter: CluedLetter, currentIndex: number, array: CluedLetter[]) => {
     let reduced: CluedLetter = prev;
@@ -270,7 +296,8 @@ function Game(props: GameProps) {
     .fill(undefined)
     .map((_, i) => {
       const guess = [...guesses, currentGuess][i] ?? "";
-      const cluedLetters = (gameState === GameState.Won && i === guesses.length-1) ? clue(guess,target) : fibclue(guess, target, fibs[i]);
+      const finalWinningGuess = gameState === GameState.Won && i === guesses.length-1;
+      const cluedLetters = finalWinningGuess ? clue(guess,puzzle.target) : fibclue(guess, puzzle.target, puzzle.fibs[i]);
       const lockedIn = i < guesses.length;
       if (lockedIn) {
         for (let j = 0; j < cluedLetters.length; ++j) {
@@ -287,9 +314,9 @@ function Game(props: GameProps) {
         <Row
           key={i}
           rowNum={i}
+          fibPos={ (gameState === GameState.Playing || i >= guesses.length-1 ) ? -1 : puzzle.fibs[i].position }
           flagPos={
-            (gameState === GameState.Won &&i === guesses.length-1 ) ? -1 : 
-            (gameState === GameState.Playing || !lockedIn) ? flags[i] : fibs[i].position}
+            (gameState === GameState.Won && i === guesses.length-1 ) ? -1 : flags[i]}
           rowState={
             lockedIn
               ? RowState.LockedIn
@@ -298,13 +325,13 @@ function Game(props: GameProps) {
               : RowState.Pending
           }
           cluedLetters={cluedLetters}
-          clickHandler={onClickFlag}
+          clickHandler={(row: number, position: number) => { if( gameState === GameState.Playing ) { onClickFlag(row, position); } } }
           annotation={`\u00a0`}          
         />
       );
     });
 
-  const cheatText = cheat ? ` ${target}` : "";
+  const cheatText = cheat ? ` ${puzzle.target}` : "";
   const canPrev = dayNum > 1;
   const canNext = dayNum < todayDayNum;
   const prevLink = "?d=" + (dayNum-1).toString();
@@ -312,7 +339,7 @@ function Game(props: GameProps) {
   let correctFlags = 0;
   let totalFlags = 0;
   for (let i = 0; i < maxGuesses; ++i) {
-    if (fibs[i].position === flags[i]) {
+    if (puzzle.fibs[i].position === flags[i]) {
       correctFlags++;
     }
     if (flags[i] !== -1) {
@@ -320,7 +347,7 @@ function Game(props: GameProps) {
     }
   }
   
-  const flagShare = gameState == GameState.Lost ? (" " + correctFlags.toString() + "/" + totalFlags.toString() + "🏴") : "";
+  const flagShare = (totalFlags > 0) ? (" " + correctFlags.toString() + "/" + totalFlags.toString() + "🏴") : "";
 
   return (
     <div className="Game" style={{ display: props.hidden ? "none" : "block" }}>
@@ -356,13 +383,7 @@ function Game(props: GameProps) {
               share(
                 "result copied to clipboard!",
                 `${gameName} #${dayNum} ${score}/${props.maxGuesses}${flagShare}\n` +
-                  guesses
-                    .map((guess, i) =>
-                      (gameState === GameState.Won && i === (guesses.length-1) ? clue(guess,target) : fibclue(guess, target, fibs[i]) )
-                        .map((c) => emoji[c.clue ?? 0])
-                        .join("")
-                    )
-                    .join("\n")
+                  emojiBlock({guesses:guesses, puzzle:puzzle, gameState:gameState, flags:flags}, props.colorBlind)                
               );
             }}
           >

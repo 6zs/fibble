@@ -1,5 +1,36 @@
-import { maxGuesses, dayNum } from "./util";
-import { GameState, gameDayStoragePrefix, guessesDayStoragePrefix } from "./Game"
+import { maxGuesses, day1Number, dateToNumber, todayDayNum } from "./util";
+import { Puzzle, GameState, gameDayStoragePrefix, guessesDayStoragePrefix, flagsDayStoragePrefix, makePuzzle } from "./Game"
+
+export interface Day
+{
+  gameState: GameState,
+  puzzle: Puzzle,
+  guesses: string[],
+  flags: number[]
+}
+
+export function GetDay(date: Date) : Day | null
+{
+  const day = 1 + dateToNumber(date) - day1Number;
+  try {
+    const storedState = window.localStorage.getItem(gameDayStoragePrefix+day);
+    const storedGuesses = window.localStorage.getItem(guessesDayStoragePrefix+day)
+    const storedFlags = window.localStorage.getItem(flagsDayStoragePrefix+day);
+    let flags : number[] = [];
+    let state = GameState.Playing;
+    if (storedState) {
+      state = JSON.parse(storedState);
+    }
+    if (storedFlags) {
+      flags = JSON.parse(storedFlags);
+    }
+    if ( storedGuesses ) {
+      return { guesses: JSON.parse(storedGuesses), puzzle: makePuzzle(day), gameState: state, flags: flags };
+    }
+  } catch(e) {
+  }
+  return null;
+}
 
 export function Stats() {
 
@@ -14,7 +45,7 @@ export function Stats() {
     histogram[i] = 0;
   }
 
-  for(let day: number = 0; day <= dayNum; ++day) 
+  for(let day: number = 0; day <= todayDayNum; ++day) 
   {
     let haveDay = false;
     let dayState: GameState = GameState.Playing;

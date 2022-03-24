@@ -10,6 +10,7 @@ interface RowProps {
   rowState: RowState;
   rowNum: number;
   flagPos: number;
+  fibPos: number;
   cluedLetters: CluedLetter[];
   annotation?: string;
   clickHandler: (row: number, position: number) => void;
@@ -26,6 +27,9 @@ export function Row(props: RowProps) {
       let isFlagged = props.flagPos == i;
       if (isLockedIn && clue !== undefined) {
         letterClass += " " + clueClass(clue);
+      }      
+      if(props.fibPos === i) {
+        letterClass += " " + "letter-known-fib";
       }
       const position = i;
       return (

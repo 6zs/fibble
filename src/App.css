@@ -164,6 +164,10 @@ table.Game-rows > tbody {
   color: white !important;
 }
 
+.letter-known-fib {
+  border: 2px dotted black;
+}
+
 .letter-absent, 
 .Game-keyboard-button.letter-correct-fin,
 .Game-keyboard-button.letter-elsewhere-fin,
@@ -398,4 +402,9 @@ a:active {
 .App-container.color-blind .letter-elsewhere-fin,
 .App-container.color-blind .App-about b.yellow-bg {
   background-color: #85c0f9;
+}
+
+.react-calendar__tile pre {
+  height: 100%;
+  font-size: 6px;
 }
