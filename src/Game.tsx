@@ -125,8 +125,9 @@ function gameOverText(state: GameState, target: string) : string {
   return `you ${verbed}! the answer was ${target.toUpperCase()}. try again tomorrow`; 
 }
 
+let uniqueGame = 873642867;
 export function makePuzzle(dayNum: number) : Puzzle {
-  let random = makeRandom(dayNum);
+  let random = makeRandom(dayNum+uniqueGame);
   let target = randomTarget(random);
   let fibs = new Array<Fib>(maxGuesses);
   const positions = [0,1,2,3,4];
