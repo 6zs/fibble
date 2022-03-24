@@ -3,8 +3,8 @@ import { Puzzle, GameState, gameDayStoragePrefix, guessesDayStoragePrefix, flags
 
 export interface Day
 {
-  gameState: GameState,
   puzzle: Puzzle,
+  gameState: GameState,
   guesses: string[],
   flags: number[]
 }
