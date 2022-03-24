@@ -164,10 +164,6 @@ table.Game-rows > tbody {
   color: white !important;
 }
 
-.letter-known-fib {
-  border: 2px dotted black;
-}
-
 .letter-absent, 
 .Game-keyboard-button.letter-correct-fin,
 .Game-keyboard-button.letter-elsewhere-fin,
@@ -176,6 +172,10 @@ table.Game-rows > tbody {
   border: 2px solid transparent;
   background-color: rgb(162, 162, 162);
   color: white !important;
+}
+
+.letter-known-fib {
+  border: 2px dotted black;
 }
 
 body.dark {
