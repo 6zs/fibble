@@ -122,7 +122,7 @@ function initialFlags(): number[] {
 
 function gameOverText(state: GameState, target: string) : string {
   const verbed = state === GameState.Won ? "won" : "lost";
-  return `you ${verbed}! the answer was ${target.toUpperCase()}. try again tomorrow`; 
+  return `You ${verbed}! The answer was ${target.toUpperCase()}. Play again tomorrow!`; 
 }
 
 let uniqueGame = 873642867;
@@ -234,15 +234,15 @@ function Game(props: GameProps) {
     } else if (key === "Enter") {
     
       if (currentGuess.length !== 5) {
-        setHint("type more letters");
+        setHint("More letters, please.");
         return;
       }
       if(guesses.includes(currentGuess)) {
-        setHint("you've already guessed that");
+        setHint("You've already guessed that!");
         return;
       }      
       if (!dictionary.includes(currentGuess)) {
-        setHint(`that's not in the word list`);
+        setHint(`That's not in the word list!`);
         return;
       }
      

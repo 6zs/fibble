@@ -1,6 +1,6 @@
 import dictionary from "./dictionary.json";
 
-export const gameName = "fibble";
+export const gameName = "Fibble";
 export const maxGuesses = 9;
 
 export function dateToNumber(date: Date) : number {
@@ -15,7 +15,6 @@ const todayNumber = dateToNumber(todayDate);
 
 export const day1Date = new Date('March 19 2022');
 export const day1Number = dateToNumber(day1Date);
-const rando = 873642867;
 const debugDay = new URLSearchParams(window.location.search).get("d") ?? undefined;
 export const cheat = new URLSearchParams(window.location.search).get("cheat") ?? undefined;
 export const dayNum : number = debugDay ? parseInt(debugDay) : 1 + todayNumber - day1Number;
