@@ -127,7 +127,7 @@ function App() {
             fontStyle: "inherit",
           }}
         >
-         fibble
+         Fibble
         </span>
       </h1>
       <div className="top-right">
