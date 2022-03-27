@@ -13,7 +13,8 @@ import {
   cheat,
   maxGuesses,
   makeRandom,
-  practice
+  practice,
+  allowPractice
 } from "./util";
 
 import { Day } from "./Stats"
@@ -392,7 +393,7 @@ function Game(props: GameProps) {
         {!practice && canPrev && <span><a href={prevLink}>prev</a> |</span>}
         {!practice && <span>day {dayNum}{`${cheatText}`}</span>}
         {!practice && canNext && <span>| <a href={nextLink}>next</a></span>}
-        {!practice && !canNext && <span>| <a href={practiceLink}>practice</a></span>}
+        {allowPractice && !practice && !canNext && <span>| <a href={practiceLink}>practice</a></span>}
 
         {practice && <span><a href={todayLink}>today</a> |</span>}        
         {practice && <span>practice{`${cheatText}`}</span>}
