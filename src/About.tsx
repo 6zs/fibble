@@ -10,22 +10,22 @@ export function About() {
           <a href="https://www.powerlanguage.co.uk/wordle/"> 
           Wordle
           </a> by Josh Wardle and is one of three sibling sites{" "}
-          <br /><br /> <a href="https://xordle.xyz">xordle</a> by <a href="https://twitter.com/kellydornhaus">keldor</a><br/>Two secret words, one board, no overlap between the words. 
+          <br /><br /> <a href="https://xordle.xyz">Xordle</a> by <a href="https://twitter.com/kellydornhaus">keldor</a><br/>Two secret words, one board, no overlap between the words. 
           <br /><br /> <a href="https://fibble.xyz">Fibble</a> by K &amp; R Garfield, coded by keldor <br/>Lies to you once per row.
           <br /><br /> <a href="https://warmle.org">Warmle</a> by Mike Elliott, coded by keldor <br/>Yellows tell you if you've gotten close in that position.
         </p>
       <hr /> 
       <p className="App-instructions">
         <h1>Fibble rules</h1>
-        letters in your guess are:
-        <br />🟩 green if it's the right letter in the right spot
-        <br />🟨 yellow if it's the right letter in the wrong spot
-        <br />⬛ grey if it does not appear in either word 
+        Letters in your guess are:
+        <br />🟩 Green if it's the right letter in the right spot
+        <br />🟨 Yellow if it's the right letter in the wrong spot
+        <br />⬛ Grey if it does not appear in the word 
         <br />
-        <br />but there's one fib in every row
-        <br />the fibs are in the same positions for everyone
-        <br />good luck!
-        <br />p.s. you can use 🏴 to track which letters you believe are lies
+        <br />But there's one lie in every row!
+        <br />The lies are in the same positions for everyone.
+        <br />Good luck!
+        <br />P.S. You can use 🏴 to track which letters you believe are lies.
       </p>
       <hr />
       <p>
