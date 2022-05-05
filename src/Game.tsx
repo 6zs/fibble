@@ -15,9 +15,11 @@ import {
   makeRandom,
   practice,
   allowPractice,
-  todayDate
+  todayDate,
+  urlParam,
+  isDev
 } from "./util";
-
+import { hardCodedPuzzles  } from "./hardcoded";
 import { Day } from "./Stats"
 
 export enum GameState {
@@ -130,6 +132,10 @@ function gameOverText(state: GameState, target: string) : string {
 
 let uniqueGame = 2000;
 export function makePuzzle(seed: number) : Puzzle {
+  let hardCoded = hardCodedPuzzles[seed];
+  if (hardCoded) {
+      return hardCoded;
+  }  
   let random = makeRandom(seed+uniqueGame);
   let target = randomTarget(random);
   let fibs = new Array<Fib>(maxGuesses);
@@ -166,6 +172,14 @@ export interface Puzzle {
 
 function Game(props: GameProps) {
 
+  if (urlParam("export") && isDev) {
+    let values : Record<number, Puzzle> = {};    
+    for(let i = 1; i <= parseInt(urlParam("export") ?? "1"); ++i) {
+      values[i] = makePuzzle(i);
+    }
+    window.console.log( JSON.stringify(values, null, "\t") );
+  }
+    
   let seed: number = dayNum;
   if (practice) {
     seed = new Date().getMilliseconds();

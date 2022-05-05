@@ -1,5 +1,5 @@
 import "./App.css";
-import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, dayNum, todayDayNum, allowPractice, practice } from "./util";
+import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, dayNum, todayDayNum, allowPractice, practice, isDev } from "./util";
 import Game, { emojiBlock, GameState } from "./Game";
 import { useEffect, useState } from "react";
 import { About } from "./About";
@@ -63,7 +63,7 @@ function App() {
 
   useEffect(() => { 
 
-    if (Number(dayNum) > Number(todayDayNum)) {
+    if (Number(dayNum) > Number(todayDayNum) && !isDev) {
       window.location.replace(redirectTo);
       return;
     }
@@ -120,6 +120,21 @@ function App() {
 
   const dailyLink = "/";
   const practiceLink = "/?unlimited";
+
+  if (Number(dayNum) > Number(todayDayNum) && !isDev) {
+    return (
+      <div className={"App-container" + (colorBlind ? " color-blind" : "")}>
+        <h1>
+          <div className="Game-name-mode-container">
+              <span className="Game-name">Fibble</span>             
+            </div>
+            <div className="Game-modes">
+              Rewinding Time...
+            </div>
+          </h1>
+          </div>
+        )
+  }  
 
   return (
     <div className={"App-container" + (colorBlind ? " color-blind" : "")}>
