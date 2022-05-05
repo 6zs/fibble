@@ -1630,13 +1630,13 @@ export const hardCodedPuzzles : Record<number, Puzzle> = {
         ]
     },
     "38": {
-        "target": "tumor",
+        "target": "happy",
         "initialGuesses": [
-            "knife"
+            "mamma"
         ],
         "fibs": [
             {
-                "position": 3,
+                "position": 1,
                 "offset": 2
             },
             {

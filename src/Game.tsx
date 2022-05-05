@@ -21,6 +21,8 @@ import {
 } from "./util";
 import { hardCodedPuzzles  } from "./hardcoded";
 import { Day } from "./Stats"
+import { checkVersion } from "./version";
+import cheatyface from "./cheatyface.json"
 
 export enum GameState {
   Playing,
@@ -171,6 +173,8 @@ export interface Puzzle {
 }
 
 function Game(props: GameProps) {
+
+  checkVersion();
 
   if (urlParam("export") && isDev) {
     let values : Record<number, Puzzle> = {};    
@@ -382,12 +386,12 @@ function Game(props: GameProps) {
     });
 
   const cheatText = cheat ? ` ${puzzle.target}` : "";
-  const canPrev = dayNum > 1;
-  const canNext = dayNum < todayDayNum;
+  const canPrev = dayNum > 1 || isDev;
+  const canNext = dayNum < todayDayNum || isDev;
   const todayLink = "?";
   const practiceLink = "?unlimited";
-  const prevLink = "?x=" + (dayNum-1).toString();
-  const nextLink = "?x=" + (dayNum+1).toString();
+  const prevLink = "?x=" + (dayNum-1).toString() + (isDev ? "&xyzzyx="+cheatyface["password"] : "") + (cheat ? "&cheat=1" : "");
+  const nextLink = "?x=" + (dayNum+1).toString() + (isDev ? "&xyzzyx="+cheatyface["password"] : "") + (cheat ? "&cheat=1" : "");
  
   let correctFlags = 0;
   let totalFlags = 0;
