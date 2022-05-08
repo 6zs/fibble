@@ -141,7 +141,7 @@ function App() {
     <div className={"App-container" + (colorBlind ? " color-blind" : "")}>
       <h1>
         <div className="Game-name-mode-container">
-          <span className="Game-name">Fibble</span>             
+        <span className="Game-name"><img width="25" height="25" src="favicon.png"/> Fibble </span>        
           <div className="Game-modes">
             {allowPractice && !practice && <a className="ModeEnabled">Daily</a>}
             {allowPractice && practice && <a className="ModeDisabled" href={dailyLink}>Daily</a>}
