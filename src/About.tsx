@@ -25,7 +25,8 @@ export function About() {
         <br />But there's one lie in every row!
         <br />The lies are in the same positions for everyone.
         <br />Good luck!
-        <br />P.S. You can use 🏴 to track which letters you believe are lies.
+        <br />Use 🏴 to track which letters you believe are lies. 
+        <br />Long-press or right click to highlight tiles (or flags) you believe are correct.
       </p>
       <hr />
       <p>

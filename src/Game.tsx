@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Row, RowState } from "./Row";
 import dictionary from "./dictionary.json";
 import { Clue, clue, CluedLetter, describeClue, fibclue } from "./clue";
@@ -15,8 +15,6 @@ import {
   makeRandom,
   practice,
   practiceSeed,
-  allowPractice,
-  todayDate,
   urlParam,
   isDev
 } from "./util";
@@ -36,6 +34,7 @@ declare const GoatEvent: Function;
 export const gameDayStoragePrefix = "fibble.results-";
 export const guessesDayStoragePrefix = "fibble.guesses-";
 export const flagsDayStoragePrefix = "fibble.flags-";
+export const lockDayStoragePrefix = "fibble.locks-";
 
 export interface Fib
 {
@@ -130,6 +129,14 @@ function initialFlags(): number[] {
   return flags;
 }
 
+function initialLocks(): boolean[][] {
+  let locks = new Array<Array<boolean>>(maxGuesses);
+  for (let i = 0; i < maxGuesses; ++i) { 
+    locks[i] = Array(5).fill(false);
+  }
+  return locks;
+}
+
 function gameOverText(state: GameState, target: string) : string {
   const verbed = state === GameState.Won ? "won" : "lost";
   return `You ${verbed}! The answer was ${target.toUpperCase()}. Play again tomorrow!`; 
@@ -193,6 +200,7 @@ function Game(props: GameProps) {
       window.localStorage.removeItem("practiceState");
       window.localStorage.removeItem("practiceGuesses");
       window.localStorage.removeItem("practiceFlags");
+      window.localStorage.removeItem("practiceLocks");
     }
   }
 
@@ -201,6 +209,7 @@ function Game(props: GameProps) {
       window.localStorage.removeItem(gameDayStoragePrefix+dayNum);
       window.localStorage.removeItem(guessesDayStoragePrefix+dayNum);
       window.localStorage.removeItem(flagsDayStoragePrefix+seed);
+      window.localStorage.removeItem(lockDayStoragePrefix+seed);
     }
   }
     
@@ -232,6 +241,7 @@ function Game(props: GameProps) {
   let stateStorageKey = practice ? "practiceState" : (gameDayStoragePrefix+seed);
   let guessesStorageKey = practice ? "practiceGuesses" : (guessesDayStoragePrefix+seed);
   let flagStorageKey = practice ? "practiceFlags" : (flagsDayStoragePrefix+seed);
+  let lockStorageKey = practice ? "practiceLocks" : (lockDayStoragePrefix+seed);
   
   const [gameState, setGameState] = useLocalStorage<GameState>(stateStorageKey, GameState.Playing);
   const [guesses, setGuesses] = useLocalStorage<string[]>(guessesStorageKey, puzzle.initialGuesses);
@@ -239,6 +249,8 @@ function Game(props: GameProps) {
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [hint, setHint] = useState<string>(getHintFromState());
   const [flags, setFlags] = useLocalStorage<number[]>(flagStorageKey, initialFlags());
+  const [locks, setLocks] = useLocalStorage<boolean[][]>(lockStorageKey, initialLocks());
+  const [debug, setDebug] = useState<string>();
    
   const tableRef = useRef<HTMLTableElement>(null);
   async function share(copiedHint: string, text?: string) {
@@ -269,18 +281,26 @@ function Game(props: GameProps) {
     if  (gameState === GameState.Won || gameState === GameState.Lost) {
       return gameOverText(gameState, puzzle.target);
     }
-    if ( guesses.length === 0 && currentGuess === undefined ) {
-      return `start guessin'`;
-    }
-    return ``;
+    return guesses.length < 3 && !practice ? `Beware the lies.` : ``;
   }
 
   const onClickFlag = (row: number, position: number) => {
     let newFlags = [...flags];
     newFlags[row] = newFlags[row] === position ? -1 : position;
     setFlags(newFlags);
+    if (position !== -1 && locks[row][position]) {
+      onToggleLock(row, position);
+    }
+    setDebug("Flagged");
   };
-  
+
+  const onToggleLock = (row: number, position: number) => {
+    let newLocks = [...locks];
+    newLocks[row][position] = !newLocks[row][position];
+    setLocks(newLocks);  
+    setDebug("Locked");
+  };
+
   const onKey = (key: string) => {
     if (gameState !== GameState.Playing) {
       return;
@@ -361,6 +381,7 @@ function Game(props: GameProps) {
     return reduced;
   };
 
+  let letterTrue = new Map<string, boolean>();
   let letterInfo = new Map<string, Clue>();
   const tableRows = Array(props.maxGuesses)
     .fill(undefined)
@@ -374,6 +395,7 @@ function Game(props: GameProps) {
           const { clue, letter } = cluedLetters[j];
           if (clue === undefined) break;
           if (flags[i] == j) continue;
+          if (locks[i][j]) { letterTrue.set(letter, true); }
           const old = letterInfo.get(letter);
           if (old === undefined || clue > old) {
             letterInfo.set(letter, clue);
@@ -394,9 +416,11 @@ function Game(props: GameProps) {
               ? RowState.Editing
               : RowState.Pending
           }
+          locks={locks}
           cluedLetters={cluedLetters}
           clickHandler={(row: number, position: number) => { if( gameState === GameState.Playing ) { onClickFlag(row, position); } } }
-          annotation={`\u00a0`}          
+          contextHandler={(row: number, position: number)=> { if( gameState === GameState.Playing ) { onToggleLock(row, position); } } }
+          annotation={`\u00a0`} 
         />
       );
     });
@@ -435,6 +459,8 @@ function Game(props: GameProps) {
   }
   
   const flagShare = (totalFlags > 0) ? (" " + correctFlags.toString() + "/" + totalFlags.toString() + "🏴") : "";
+  const hintClass = 
+    guesses.length <= 1 ? "shake-short" : "";
 
   return (
     <div className="Game" style={{ display: props.hidden ? "none" : "block" }}>
@@ -462,6 +488,7 @@ function Game(props: GameProps) {
           userSelect: /https?:/.test(hint) ? "text" : "none",
           whiteSpace: "pre-wrap",
         }}
+        className={hintClass}
       >
         {hint || `\u00a0`}
         {gameState !== GameState.Playing && (
@@ -487,8 +514,10 @@ function Game(props: GameProps) {
       <Keyboard
         layout={props.keyboardLayout}
         letterInfo={letterInfo}
+        letterTrue={letterTrue}
         onKey={onKey}
       />
+      <div className="debug">{debug}</div>
     </div>
   );
 }

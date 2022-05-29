@@ -3,6 +3,7 @@ import { Clue, clueClass } from "./clue";
 interface KeyboardProps {
   layout: string;
   letterInfo: Map<string, Clue>;
+  letterTrue: Map<string, boolean>;
   onKey: (key: string) => void;
 }
 
@@ -42,6 +43,10 @@ export function Keyboard(props: KeyboardProps) {
             }
             if (label.length > 1) {
               className += " Game-keyboard-button-wide";
+            }
+            const letterTrue = props.letterTrue.get(label);
+            if (letterTrue === true) {
+              className += " letter-locked";
             }
             return (
               <button

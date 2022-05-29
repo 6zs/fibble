@@ -26,6 +26,7 @@ body {
   text-transform: uppercase;
   font-weight: bold;
 }
+
 .Row-letter-color {
   margin: 2px;
   border: 2px solid rgba(128, 128, 128, 0.8);
@@ -53,6 +54,39 @@ body {
 {
   align-self: flex-start;
   font-size: 14px;
+}
+
+td.letter-locked.letter-flagged {
+  border: 2px dotted black;
+}
+
+body.dark td.letter-locked.letter-flagged {
+  border: 2px dotted black;
+}
+
+
+td.letter-locked
+{
+  border: 4px solid rgb(44, 120, 122);
+  border-radius: 10px;
+}
+
+.Game-keyboard-button.letter-locked
+{
+  border: 4px solid rgb(44, 120, 122);
+  border-radius: 10px;
+}
+
+body.dark td.letter-locked
+{
+  border: 4px solid rgb(122, 251, 255);
+  border-radius: 10px;
+}
+
+body.dark .Game-keyboard-button.letter-locked
+{
+  border: 4px solid rgb(122, 251, 255);
+  border-radius: 10px;
 }
 
 .Row-annotation {
@@ -141,10 +175,91 @@ table.Game-rows > tbody {
   outline: none;
 }
 
+.debug {
+  visibility: collapse;
+}
+
+:root {
+  --correct-color: rgb(87, 172, 120);
+  --elsewhere-color: rgb(233, 198, 1);
+  --absent-color: rgb(162, 162, 162);
+
+  --correct-color-colorblind: rgb(87, 172, 120);
+  --elsewhere-color-colorblind: rgb(233, 198, 1);
+  --absent-color-colorblind: rgb(162, 162, 162);
+}
+
+.shake-long
+{
+  /*animation-name: shake-long;
+  animation-duration: .7s;*/
+}
+
+.shake-short
+{
+  /*animation-name: shake;
+  animation-duration: .5s;*/
+}
+
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+
+@keyframes shake-long {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+/*
+.Row-num-0.letter-correct, 
+.Row-num-0.letter-correct-fin,
+.Row-num-1.letter-correct, 
+.Row-num-1.letter-correct-fin   {
+  animation-name: shake;
+  animation-duration: .2s;
+}
+
+.Row-num-0.letter-elsewhere, 
+.Row-num-0.letter-elsewhere-fin,
+.Row-num-1.letter-elsewhere, 
+.Row-num-1.letter-elsewhere-fin {
+  animation-name: shake;
+  animation-duration: .15s;
+}
+
+.Row-num-0.letter-absent,
+.Row-num-1.letter-absent {
+  animation-name: shake;
+  animation-duration: .1s;
+}
+*/
+
 .letter-correct, .letter-correct-fin {
   border: 2px solid rgba(0, 0, 0, 0.3);
   background-color: rgb(87, 172, 120);
   color: white !important;
+
 }
 
 .letter-elsewhere, .letter-elsewhere-fin {
