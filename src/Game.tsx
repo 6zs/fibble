@@ -285,12 +285,21 @@ function Game(props: GameProps) {
   }
 
   const onClickFlag = (row: number, position: number) => {
+    
+    if (flags[row] !== -1 && locks[row][flags[row]]) {
+      // If we had a flag and it was unlocked, lock it.
+      onToggleLock(row, flags[row]);
+    }
+
     let newFlags = [...flags];
     newFlags[row] = newFlags[row] === position ? -1 : position;
     setFlags(newFlags);
+
     if (position !== -1 && locks[row][position]) {
+      // If the new position is already locked, unlock it
       onToggleLock(row, position);
     }
+
     setDebug("Flagged");
   };
 

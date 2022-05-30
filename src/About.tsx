@@ -18,15 +18,16 @@ export function About() {
       <p className="App-instructions">
         <h1>Fibble rules</h1>
         Letters in your guess are:
-        <br />🟩 Green if it's the right letter in the right spot
-        <br />🟨 Yellow if it's the right letter in the wrong spot
-        <br />⬛ Grey if it does not appear in the word 
+        <br />🟩 Green if it's the right letter in the right spot.
+        <br />🟨 Yellow if it's the right letter in the wrong spot.
+        <br />⬛ Grey if it does not appear in the word.
         <br />
         <br />But there's one lie in every row!
         <br />The lies are in the same positions for everyone.
         <br />Good luck!
-        <br />Use 🏴 to track which letters you believe are lies. 
-        <br />Long-press or right click to highlight tiles (or flags) you believe are correct.
+        <br />
+        <br />Tip: Use 🏴 to track which letters you think might be lies. 
+        <br />Long-press or right click to highlight tiles you <b>know</b> are true, or flagged tiles you're <b>know</b> are lies.
       </p>
       <hr />
       <p>
