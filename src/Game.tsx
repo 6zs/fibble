@@ -507,15 +507,15 @@ function Game(props: GameProps) {
               const emoji = props.colorBlind
                 ? ["⬛", "🟦", "🟧"]
                 : ["⬛", "🟨", "🟩"];
-              const score = gameState === GameState.Lost ? "X" : guesses.length;
+              const score = gameState === GameState.Lost ? "X" : (guesses.length-1);
               share(
-                "result copied to clipboard!",
-                `${gameName} ${practice ? ("Unlimited " + seed.toString()) : ("#"+dayNum.toString())} ${score}/${props.maxGuesses}${flagShare}\n` +
+                "Result copied to clipboard!",
+                `${gameName} ${practice ? ("Unlimited " + seed.toString()) : ("#"+dayNum.toString())} ${score}/${props.maxGuesses-1}${flagShare}\n` +
                   emojiBlock({guesses:guesses, puzzle:puzzle, gameState:gameState, flags:flags}, props.colorBlind)                
               );
             }}
           >
-            share emoji results
+            Share
           </button>
           </p>
         )}
