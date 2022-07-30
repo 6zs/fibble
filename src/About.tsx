@@ -32,8 +32,8 @@ export function About() {
       <hr />
       <p>
         Report issues{" "}
-        <a href="https://github.com/6zs/fibble/issues">here</a>
-        <br />Code based on a fork of <a href="https://github.com/lynn/hello-wordl">hello wordl</a>
+        <a href="https://github.com/6zs/fibble/issues">here</a> or send me an <a href="mailto:kellydornhaus@gmail.com">email</a> with feedback.
+        <br />Code based on a fork of <a href="https://github.com/lynn/hello-wordl">hello wordl</a>.
       </p>
       <p>
       </p>

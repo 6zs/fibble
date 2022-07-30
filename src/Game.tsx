@@ -20,7 +20,6 @@ import {
 } from "./util";
 import { hardCodedPuzzles  } from "./hardcoded";
 import { Day } from "./Stats"
-import { checkVersion } from "./version";
 import cheatyface from "./cheatyface.json"
 
 export enum GameState {
@@ -183,8 +182,6 @@ export interface Puzzle {
 }
 
 function Game(props: GameProps) {
-
-  checkVersion();
 
   if (urlParam("export") && isDev) {
     let values : Record<number, Puzzle> = {};    
